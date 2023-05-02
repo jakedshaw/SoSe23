@@ -1,3 +1,8 @@
+# Author: Jacob Shaw
+# Date: May 1, 2023
+# Experimentalphysik II
+# Blatt I
+
 import numpy as np
 from scipy.constants import epsilon_0
 import matplotlib.pyplot as plt

@@ -1,3 +1,8 @@
+# Author: Jacob Shaw
+# Date: April 2023
+# Mathematisches Studieren
+# Fourierreihen
+
 import numpy as np
 from numpy import sin, pi
 import os

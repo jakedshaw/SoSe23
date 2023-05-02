@@ -1,3 +1,8 @@
+# Author: Jacob Shaw
+# Date: May 1, 2023
+# Analysis II
+# H1.2 Visualisieren
+
 import numpy as np
 from numpy import cos, sin, pi
 import matplotlib.pyplot as plt
