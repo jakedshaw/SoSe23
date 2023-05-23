@@ -26,9 +26,9 @@ def graph_data(data, lab):
             ax[i, j].set_ylim(0, 1.1 * max(data[k]))
             # Graf der Funktion
             ax[i, j].plot(data[0], data[k], c='k')
-    
-    plt.tight_layout()
-    plt.show()
+
+    fig.tight_layout()  # looks better when figure small
+    plt.show()  # show plot
 
     return True
 

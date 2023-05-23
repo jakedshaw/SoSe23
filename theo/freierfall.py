@@ -103,13 +103,13 @@ def graph_data(t, data, lab):
 
     ani = animation.FuncAnimation(fig, animate, interval=50, blit=False, save_count=len(t))
 
-    fig.tight_layout()
+    fig.tight_layout()  # looks better when figure small
 
     # writer = animation.PillowWriter(fps=30, metadata=dict(artist='Jacob Shaw'), bitrate=1800)
     # ani.save('freier_Fall.gif', writer=writer)
 
-    ax[0, 0].legend()  # Legend
-    plt.show()
+    ax[0, 0].legend()  # show legend on zeroth (first) plot
+    plt.show()  # show plot
 
     return True
 

@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 
 
-def graph_data(t, r1, r2, l, M, m, phi_0, k=1.1):
+def graph_data(t, r1, r2, l, m1, m2, phi_0, k=1.1):
 
     fig, ax = plt.subplots(num='Schlittende Pendel')  # Abbildung
 
@@ -18,16 +18,29 @@ def graph_data(t, r1, r2, l, M, m, phi_0, k=1.1):
     ax.set_xlabel('x [m]')
     ax.set_ylabel('y [m]')
 
+    # x limits
+    xm = min(np.min(r1[0]), np.min(r2[0]))
+    xM = max(np.max(r1[0]), np.max(r2[0]))
+
+    if (abs(xm) < l) and (abs(xM) < l):
+        xm = -l
+        xM = l
+
+    elif abs(xm) > abs(xM):
+        xM = -xm
+
+    else:
+        xm = -xM
+
     # Achsenintervalle
-    ax.set_xlim(k * -l, k * l)
+    ax.set_xlim(k * xm, k * xM)
     ax.set_ylim(k * -l, (k-1) * l)
 
-    ax.plot([k * -l, k * l], [0, 0], c='k')
+    ax.plot([k * xm, k * xM], [0, 0], c='k')
 
     # plot massen bei t0
     rx = [r1[0, 0], r2[0, 0]]
     ry = [r1[1, 0], r2[1, 0]]
-    print(r1[:, 0])
     masse, = ax.plot(rx, ry, linestyle="-", marker="o", c='k')
 
     def animate(i):  # animation schleife
@@ -36,48 +49,46 @@ def graph_data(t, r1, r2, l, M, m, phi_0, k=1.1):
         rx = [r1[0, j], r2[0, j]]
         ry = [r1[1, j], r2[1, j]]
 
-        masse.set_xdata(rx)  # ortsvektor aktualisieren
-        masse.set_ydata(ry)  # ortsvektor aktualisieren
+        masse.set_xdata(rx)  # x Koordinaten aktualisieren
+        masse.set_ydata(ry)  # y Koordinaten aktualisieren
 
         return masse
 
     ani = animation.FuncAnimation(fig, animate, interval=10, blit=False, save_count=len(t))
 
-    fig.tight_layout()
+    fig.tight_layout()  # looks better when figure small
 
-    # writer = animation.PillowWriter(fps=60, metadata=dict(artist='Jacob Shaw'), bitrate=1800)
-    # ani.save(f'{l}-{M}-{m}-{phi_0*180/np.pi}.gif', writer=writer)
+    writer = animation.PillowWriter(fps=60, metadata=dict(artist='Jacob Shaw'), bitrate=1800)
+    ani.save(f'assets/{l}-{m1}-{m2}-{phi_0*180/np.pi}.gif', writer=writer)
 
-    # ax[0, 0].legend()  # Legend
-    plt.show()
+    # ax.legend()  # show legend on zeroth (first) plot
+    plt.show()  # show plot
 
     return True
 
 
-def run(M=1, m=100, l=1, phi_0=np.pi/4):
-    t0 = time.time()  # t0
+def run(m1=1, m2=2, l=1, phi_0=np.pi/4):
 
-    # Zeit
+    # Zeitvektor
     t1, dt = 5, 0.01  # Endzeit, Zeitstufe
     t = np.arange(0, t1+dt, dt)  # Zeitvektor t.size [s]
 
     # Daten
-    lam = np.sqrt((g / l) * (m + M) / (m + M - 1))
+    lam = np.sqrt((g / l) * (m2 + m1) / (m2 + m1 - 1))
     phi = phi_0 * np.cos(lam * t)
-    s = -phi * m * l / (m + M)
+    s = (phi_0 - phi) * m2 * l / (m2 + m1)
 
+    # Ortsvektor m1
     r1 = np.zeros((2, t.size))
     r1[0, :] = s
 
+    # Ortsvektor m2
     r2 = np.zeros((2, t.size))
     r2[0, :] = r1[0, :] + l * np.sin(phi)  # x
     r2[1, :] = r1[1, :] - l * np.cos(phi)  # y
 
-    t1 = time.time()  # t1
-    print(f"\nwurde in {t1 - t0} Sekunden durchgefuehrt")
-
     # grafisch darstellen
-    graph_data(t, r1, r2, l, M, m, phi_0)
+    graph_data(t, r1, r2, l, m1, m2, phi_0)
 
     return True
 
