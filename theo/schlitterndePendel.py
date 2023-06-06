@@ -59,10 +59,10 @@ def graph_data(t, r1, r2, l, m1, m2, phi_0, k=1.1):
     fig.tight_layout()  # looks better when figure small
 
     writer = animation.PillowWriter(fps=60, metadata=dict(artist='Jacob Shaw'), bitrate=1800)
-    ani.save(f'assets/{l}-{m1}-{m2}-{phi_0*180/np.pi}.gif', writer=writer)
+    ani.save(f'assets/schlitternde-Pendel/{l}-{m1}-{m2}-{phi_0*180/np.pi}.gif', writer=writer)
 
     # ax.legend()  # show legend on zeroth (first) plot
-    plt.show()  # show plot
+    # plt.show()  # show plot
 
     return True
 
@@ -74,8 +74,8 @@ def run(m1=1, m2=2, l=1, phi_0=np.pi/4):
     t = np.arange(0, t1+dt, dt)  # Zeitvektor t.size [s]
 
     # Daten
-    lam = np.sqrt((g / l) * (m2 + m1) / (m2 + m1 - 1))
-    phi = phi_0 * np.cos(lam * t)
+    w = np.sqrt(g * (m2 + m1) / (m1 * l))
+    phi = phi_0 * np.cos(w * t)
     s = (phi_0 - phi) * m2 * l / (m2 + m1)
 
     # Ortsvektor m1
@@ -93,5 +93,41 @@ def run(m1=1, m2=2, l=1, phi_0=np.pi/4):
     return True
 
 
+def main_loop():
+
+    t0 = time.time()
+
+    trials = [
+        [1, 1, 1, np.pi / 4],
+        [1, 1, 2, np.pi / 4],
+        [1, 1, 10, np.pi / 4],
+        [1, 1, 1000, np.pi / 4],
+        [1, 2, 1, np.pi / 4],
+        [1, 10, 1, np.pi / 4],
+        [1, 100, 1, np.pi / 4]
+    ]
+
+    for trial in trials:
+        l, m1, m2, phi_0 = trial
+        run(l, m1, m2, phi_0)
+
+    t1 = time.time()
+
+    print(f'executed in {t1-t0} seconds')
+
+    return True
+
+
+def eingabe():
+    
+    try:
+        a = input(f'{}')
+        return int(a)
+    except Exception as e:
+        print('input must be Integer!')
+
+def custom_input():
+    l =
+
 if __name__ == '__main__':
-    run()
+    custom_input()
