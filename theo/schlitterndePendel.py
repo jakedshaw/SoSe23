@@ -3,6 +3,7 @@
 # Theoretische Physik
 # 5.2 Schlitternde Pendel
 
+import os
 import time
 import numpy as np
 from scipy.constants import g
@@ -10,7 +11,13 @@ import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 
 
-def graph_data(t, r1, r2, l, m1, m2, phi_0, k=1.1):
+def clear_screen():
+    os.system('cls' if os.name == 'nt' else 'clear')
+
+    return True
+
+
+def graph_data(t, r1, r2, l, m1, m2, phi_0, save, show, k=1.1):
 
     fig, ax = plt.subplots(num='Schlittende Pendel')  # Abbildung
 
@@ -36,9 +43,9 @@ def graph_data(t, r1, r2, l, m1, m2, phi_0, k=1.1):
     ax.set_xlim(k * xm, k * xM)
     ax.set_ylim(k * -l, (k-1) * l)
 
-    ax.plot([k * xm, k * xM], [0, 0], c='k')
+    ax.plot([k * xm, k * xM], [0, 0], c='k')  # Gleis
 
-    # plot massen bei t0
+    # Anfangsposition der Massen
     rx = [r1[0, 0], r2[0, 0]]
     ry = [r1[1, 0], r2[1, 0]]
     masse, = ax.plot(rx, ry, linestyle="-", marker="o", c='k')
@@ -59,15 +66,21 @@ def graph_data(t, r1, r2, l, m1, m2, phi_0, k=1.1):
     fig.tight_layout()  # looks better when figure small
 
     writer = animation.PillowWriter(fps=60, metadata=dict(artist='Jacob Shaw'), bitrate=1800)
-    ani.save(f'assets/schlitternde-Pendel/{l}-{m1}-{m2}-{phi_0*180/np.pi}.gif', writer=writer)
+
+    if save:
+        ani.save(f'assets/schlitterndePendel/{l}-{m1}-{m2}-{phi_0*180/np.pi}.gif', writer=writer)
 
     # ax.legend()  # show legend on zeroth (first) plot
-    # plt.show()  # show plot
+
+    if show:
+        plt.show()  # show plot
+
+    plt.clf()
 
     return True
 
 
-def run(m1=1, m2=2, l=1, phi_0=np.pi/4):
+def berechnungen(m1=1, m2=2, l=1, phi_0=np.pi/4, save=False, show=True):
 
     # Zeitvektor
     t1, dt = 5, 0.01  # Endzeit, Zeitstufe
@@ -88,7 +101,7 @@ def run(m1=1, m2=2, l=1, phi_0=np.pi/4):
     r2[1, :] = r1[1, :] - l * np.cos(phi)  # y
 
     # grafisch darstellen
-    graph_data(t, r1, r2, l, m1, m2, phi_0)
+    graph_data(t, r1, r2, l, m1, m2, phi_0, save, show)
 
     return True
 
@@ -109,7 +122,8 @@ def main_loop():
 
     for trial in trials:
         l, m1, m2, phi_0 = trial
-        run(l, m1, m2, phi_0)
+        berechnungen(l, m1, m2, phi_0, save=True, show=False)
+        print(time.time() - t0)
 
     t1 = time.time()
 
@@ -118,16 +132,79 @@ def main_loop():
     return True
 
 
-def eingabe():
-    
+def float_eingabe(mess, default, head):
+
+    print(head)
+
     try:
-        a = input(f'{}')
-        return int(a)
+
+        a = input(f'{mess} (default = {default}): ')
+
+        if a == '':
+            clear_screen()
+            return default
+
+        clear_screen()
+        return float(a)
+
     except Exception as e:
-        print('input must be Integer!')
+
+        clear_screen()
+        print('input must be Integer!', end=' ')
+        return float_eingabe(mess, default, head)
+
+
+def bool_eingabe(mess, default, head):
+
+    print(head)
+
+    a = input(f'{mess}? (y/n): ')
+
+    if a.lower() == 'y':
+        clear_screen()
+        return True
+
+    elif a.lower() == 'n':
+        clear_screen()
+        return False
+
+    elif a == '':
+        clear_screen()
+        return default
+
+    else:
+
+        clear_screen()
+        print("input must be 'y' or 'n'", end=' ')
+        return bool_eingabe(mess, default, head)
+
 
 def custom_input():
-    l =
+
+    clear_screen()
+    head = '\n\ncustom values\n'
+
+    l = float_eingabe('l', 1, head)
+    head += f'l = {l}\n'
+
+    m1 = float_eingabe('Pendel Massepunkt', 5, head)
+    head += f'm_1 = {m1}\n'
+
+    m2 = float_eingabe('Schiene Massepunkt', 1, head)
+    head += f'm_2 = {m2}\n'
+
+    phi_0 = float_eingabe('phi_o (radians)', np.pi/8, head)
+    head += f'phi_o = {phi_0}\n'
+
+    save = bool_eingabe('save', False, head)
+
+    berechnungen(l, m1, m2, phi_0, save)
+
+    clear_screen()
+
+    return True
+
 
 if __name__ == '__main__':
-    custom_input()
+    main_loop()
+    # custom_input()
