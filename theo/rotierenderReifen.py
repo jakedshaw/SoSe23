@@ -36,7 +36,7 @@ def graph_data(massenpunkt, reifen, R, save=False, show=True, k=1.1):
     fig.tight_layout()  # looks better when figure small
     # ax.legend()  # show legend on zeroth (first) plot
 
-    for i in range(100000):
+    for i in range(10000):
         j = int(i % len(massenpunkt))  # modulo Laenge der zeit (loop)
 
         # Massenpunkt
@@ -111,28 +111,57 @@ def graph_data_schale(r, R, w, save=False, show=True, k=1.1):
     return True
 
 
-def berechnungen(m=1, R=1, w=1.5*np.pi, phi_0=0):
+def berechnungen(m=1, R=1, w=2*np.pi, phi_0=0):
+    w0 = w
 
     # Zeitvektor
     f = w / (2 * np.pi)  # Frequenz
     T = 1 / f  # Periodendauer
     n = 120  # Anzahl der Punkten
-    t1, dt = T, T/n  # Endzeit, Zeitstufe
+    t1, dt = 3 * T, T/n  # Endzeit, Zeitstufe
     t = np.arange(0, t1+dt, dt)  # Zeitvektor t.size [s]
+    print(dt)
+
+    omega_krit = np.sqrt(g / R)  # * 1.00001
+    d_omega = w - omega_krit
+    d = np.arange(0, 1, 1 / t.size)
+    w -= d_omega * d**2
 
     # Daten
-    z = g / (R * w ** 2)
-    # theta = np.arccos(z)
-    A = np.sqrt(1 - z**2)
-    phi = w * t + phi_0
-    L_phi = m * R**2 * w * A
+    cos_theta = g / (R * w**2)
+    theta = np.arccos(cos_theta)
+    sin_theta = np.sqrt(1 - cos_theta**2)
+    p_phi = m * R**2 * w * (1 - cos_theta**2)
+    # phi = w * t + phi_0  # omega const
+
+    d_phi = 0.5 * (w[:-1] + w[1:]) * dt
+    print(np.sum(d_phi))
+
+    phi = [0]
+    for i in d_phi:
+        phi.append(phi[-1] + i)
+
+    phi = np.array(phi)
+
+    # phi = -2 * w0 * (np.exp(-t * 2 * np.tan(theta) ** -1) - 1)
+
+
+
+    cos_theta = g / (R * w ** 2)
+    theta = np.arccos(cos_theta)
+    d_theta = (w[1:] - w[:-1]) / dt
+    plt.plot(t, phi)
+    plt.plot(t, -2 * w0 * (np.exp(-t * 2 * np.tan(theta)**-1) - 1))
+    plt.show()
+
+
 
     # Ortsvektor
     r = np.zeros((t.size, 3))
-    r[:, 0] = A * np.cos(phi)  # x1
-    r[:, 1] = A * np.sin(phi)  # x2
-    r[:, 2] = -z  # x3
-    # r = [A * np.cos(phi), A * np.sin(phi), -z]
+    r[:, 0] = sin_theta * np.cos(phi)  # x1
+    r[:, 1] = sin_theta * np.sin(phi)  # x2
+    r[:, 2] = -cos_theta  # x3
+    r *= R
 
     # Ortsvektor vom Ursprung
     origin = [0, 0, 0]
@@ -143,7 +172,11 @@ def berechnungen(m=1, R=1, w=1.5*np.pi, phi_0=0):
             x_tmp.append([origin[j], r[i, j]])
         massepunkt.append(x_tmp)
 
-    print(f'L_phi = {L_phi}')
+    #print(f'p_phi = {p_phi}')
+    #print(f'theta = {theta*180/np.pi}')
+    #print(f'omega_krit = {omega_krit}')
+    #print(f'T = {0.5 * m * (w * R)**2}')
+    #print(phi)
 
     # Ring
     m = 40
@@ -161,8 +194,10 @@ def berechnungen(m=1, R=1, w=1.5*np.pi, phi_0=0):
         reifen[i, 1, :] = Y
         reifen[i, 2, :] = Z
 
+
+
     # grafisch darstellen
-    graph_data(massepunkt, reifen, R)
+    # graph_data(massepunkt, reifen, R)
     graph_data_schale(r, R, w)
 
     return True
